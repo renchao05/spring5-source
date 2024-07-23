@@ -31,7 +31,7 @@ dependencies {
 	testCompileOnly("org.aspectj:aspectjrt")
 }
 
-eclipse.project {
-	natures += "org.eclipse.ajdt.ui.ajnature"
-	buildCommands = [new org.gradle.plugins.ide.eclipse.model.BuildCommand("org.eclipse.ajdt.core.ajbuilder")]
-}
+//eclipse.project {
+//	natures += "org.eclipse.ajdt.ui.ajnature"
+//	buildCommands = [new org.gradle.plugins.ide.eclipse.model.BuildCommand("org.eclipse.ajdt.core.ajbuilder")]
+//}
