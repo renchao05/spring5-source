@@ -1,10 +1,16 @@
 package com.renchao.ioc;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.context.annotation.AnnotationConfigUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Arrays;
 
 public class Demo01_BeanFactory {
 	public static void main(String[] args) {
@@ -13,8 +19,33 @@ public class Demo01_BeanFactory {
 		AbstractBeanDefinition beanDefinition =
 				BeanDefinitionBuilder.genericBeanDefinition(Config.class).setScope("singleton").getBeanDefinition();
 		beanFactory.registerBeanDefinition("config", beanDefinition);
-	}
+		// 给 BeanFactory 添加一些常用的后处理器 BeanFactoryPostProcessor 和 BeanPostProcessor
+		AnnotationConfigUtils.registerAnnotationConfigProcessors(beanFactory);
 
+		// BeanFactory 后处理器主要功能，补充一些 bean 定义
+		// 需要调用才能生效
+		System.out.println("===========BeanFactory 后处理器");
+		beanFactory.getBeansOfType(BeanFactoryPostProcessor.class).values().forEach(beanFactoryPostProcessor -> {
+			System.out.println(beanFactoryPostProcessor);
+			beanFactoryPostProcessor.postProcessBeanFactory(beanFactory);
+		});
+
+		// Bean 后处理器, 针对 bean 的生命周期的各个阶段提供扩展, 例如 @Autowired @Resource ...
+		// 需要先注册，在bean实例化的时候由容器调用
+		System.out.println("\n===========Bean 后处理器");
+		beanFactory.getBeansOfType(BeanPostProcessor.class).values().forEach(beanPostProcessor -> {
+			System.out.println(beanPostProcessor);
+			beanFactory.addBeanPostProcessor(beanPostProcessor);
+		});
+		// 准备好所有单例
+		System.out.println("\n准备好所有单例");
+		beanFactory.preInstantiateSingletons();
+		System.out.println("=======================");
+
+		Arrays.stream(beanFactory.getBeanDefinitionNames()).forEach(System.out::println);
+		Bean1 bean = beanFactory.getBean(Bean1.class);
+		System.out.println(bean.bean2);
+	}
 
 
 	@Configuration
@@ -42,9 +73,17 @@ public class Demo01_BeanFactory {
 
 	static class Bean1 {
 
+		@Autowired
+		private Bean2 bean2;
+
+		public Bean1() {
+			System.out.println("Bean1实例化");
+		}
 	}
 
 	static class Bean2 {
+		@Autowired
+		private Bean1 bean1;
 
 	}
 
@@ -55,7 +94,6 @@ public class Demo01_BeanFactory {
 	static class Bean4 {
 
 	}
-
 
 
 }
