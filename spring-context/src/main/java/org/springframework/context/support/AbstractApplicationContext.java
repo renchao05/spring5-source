@@ -556,41 +556,55 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			StartupStep contextRefresh = this.applicationStartup.start("spring.context.refresh");
 
 			// Prepare this context for refreshing.
+			// 准备。设置启动时间、活跃状态、关闭状态、加载系统属性到Environment、准备监听器和事件集合
 			prepareRefresh();
 
 			// Tell the subclass to refresh the internal bean factory.
+			// 获取DefaultListableBeanFactory
+			// 如果子类是ClassPathXmlApplicationContext 会在这里创建，并且解析xml中的BeanDefinition
+			// 如果子类是AnnotationConfigApplicationContext 会提前创建，这里直接返回
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
 			// Prepare the bean factory for use in this context.
+			// 准备beanFactory，填充一些属性
 			prepareBeanFactory(beanFactory);
 
 			try {
 				// Allows post-processing of the bean factory in context subclasses.
+				// 空的，由子类重写实现，可以对beanFactory进行一些后置处理，比如web中有具体实现
 				postProcessBeanFactory(beanFactory);
 
 				StartupStep beanPostProcess = this.applicationStartup.start("spring.context.beans.post-process");
 				// Invoke factory processors registered as beans in the context.
+				// 调用beanFactory后处理器
 				invokeBeanFactoryPostProcessors(beanFactory);
 				// Register bean processors that intercept bean creation.
+				// 注册Bean后处理器，在bean实例化的时候由容器调用
 				registerBeanPostProcessors(beanFactory);
 				beanPostProcess.end();
 
 				// Initialize message source for this context.
+				// 初始化国际化message源
 				initMessageSource();
 
 				// Initialize event multicaster for this context.
+				// 初始化事件多播器
 				initApplicationEventMulticaster();
 
 				// Initialize other special beans in specific context subclasses.
+				// 空的 由子类实现，初始化其他特殊bean
 				onRefresh();
 
 				// Check for listener beans and register them.
+				// 查找listener bean,并将其注册到广播器中
 				registerListeners();
 
 				// Instantiate all remaining (non-lazy-init) singletons.
+				// 实例化所有剩余的（非惰性初始化）单例
 				finishBeanFactoryInitialization(beanFactory);
 
 				// Last step: publish corresponding event.
+				// 最后一步：发布相应的事件
 				finishRefresh();
 			}
 

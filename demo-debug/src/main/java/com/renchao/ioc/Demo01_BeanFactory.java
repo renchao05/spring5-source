@@ -1,5 +1,8 @@
 package com.renchao.ioc;
 
+import com.renchao.ioc.bean.Bean1;
+import com.renchao.ioc.bean.Bean2;
+import com.renchao.ioc.bean.Bean3;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -65,35 +68,8 @@ public class Demo01_BeanFactory {
 			return new Bean3();
 		}
 
-		@Bean
-		public Bean4 bean4() {
-			return new Bean4();
-		}
 	}
 
-	static class Bean1 {
-
-		@Autowired
-		private Bean2 bean2;
-
-		public Bean1() {
-			System.out.println("Bean1实例化");
-		}
-	}
-
-	static class Bean2 {
-		@Autowired
-		private Bean1 bean1;
-
-	}
-
-	static class Bean3 {
-
-	}
-
-	static class Bean4 {
-
-	}
 
 
 }
