@@ -23,6 +23,7 @@ public class Demo01_BeanFactory {
 				BeanDefinitionBuilder.genericBeanDefinition(Config.class).setScope("singleton").getBeanDefinition();
 		beanFactory.registerBeanDefinition("config", beanDefinition);
 		// 给 BeanFactory 添加一些常用的后处理器 BeanFactoryPostProcessor 和 BeanPostProcessor
+		// AnnotatedBeanDefinitionReader 构造器也调用了该方法
 		AnnotationConfigUtils.registerAnnotationConfigProcessors(beanFactory);
 
 		// BeanFactory 后处理器主要功能，补充一些 bean 定义
