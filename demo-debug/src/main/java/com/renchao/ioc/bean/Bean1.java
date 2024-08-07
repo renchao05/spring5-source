@@ -10,4 +10,8 @@ public class Bean1 {
 	public Bean1() {
 		System.out.println("Bean1实例化");
 	}
+
+	public void m1() {
+		System.out.println("Bean1  # m1 执行。。。。。。");
+	}
 }
