@@ -3,6 +3,8 @@ package com.renchao.ioc;
 import com.renchao.ioc.bean.Bean1;
 import com.renchao.ioc.bean.Bean2;
 import com.renchao.ioc.bean.Bean3;
+import com.renchao.ioc.bean.MyFactoryBean;
+import com.renchao.ioc.post.bean.MyInstantiationAwareBeanPostProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -17,6 +19,20 @@ import java.util.Arrays;
 
 public class Demo01_BeanFactory {
 	public static void main(String[] args) {
+		test02FactoryBean();
+		// test01();
+	}
+
+	private static void test02FactoryBean() {
+		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+		AbstractBeanDefinition beanDefinition =
+				BeanDefinitionBuilder.genericBeanDefinition(MyFactoryBean.class).setScope("singleton").getBeanDefinition();
+		beanFactory.registerBeanDefinition("myFactoryBean", beanDefinition);
+		Object bean = beanFactory.getBean("myFactoryBean");
+		System.out.println(bean);
+	}
+
+	private static void test01() {
 		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 		// bean 的定义（class, scope, 初始化, 销毁）
 		AbstractBeanDefinition beanDefinition =
