@@ -19,9 +19,20 @@ import java.util.Arrays;
 
 public class Demo01_BeanFactory {
 	public static void main(String[] args) {
-		test02InstantiationAwareBeanPostProcessor();
+		test02Supplier();
+		// test02InstantiationAwareBeanPostProcessor();
 		// test02FactoryBean();
 		// test01();
+	}
+
+	private static void test02Supplier() {
+		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+		AbstractBeanDefinition beanDefinition =
+				BeanDefinitionBuilder.genericBeanDefinition(Bean1.class).setScope("singleton").getBeanDefinition();
+		beanDefinition.setInstanceSupplier(Bean1::new);
+		beanFactory.registerBeanDefinition("bean1", beanDefinition);
+		Bean1 bean = beanFactory.getBean(Bean1.class);
+		System.out.println(bean);
 	}
 
 	private static void test02InstantiationAwareBeanPostProcessor() {
