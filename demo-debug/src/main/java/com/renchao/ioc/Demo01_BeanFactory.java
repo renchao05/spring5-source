@@ -6,11 +6,13 @@ import com.renchao.ioc.bean.Bean3;
 import com.renchao.ioc.bean.MyFactoryBean;
 import com.renchao.ioc.post.bean.MyInstantiationAwareBeanPostProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.annotation.AnnotationConfigUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,10 +21,26 @@ import java.util.Arrays;
 
 public class Demo01_BeanFactory {
 	public static void main(String[] args) {
-		test02Supplier();
+		test03AutowiredAnnotationBeanPostProcessor();
+		// test02Supplier();
 		// test02InstantiationAwareBeanPostProcessor();
 		// test02FactoryBean();
 		// test01();
+	}
+
+	private static void test03AutowiredAnnotationBeanPostProcessor() {
+		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+		beanFactory.registerSingleton("bean2", new Bean2());
+
+		AbstractBeanDefinition beanDefinition =
+				BeanDefinitionBuilder.genericBeanDefinition(BeanDependBean2.class).setScope("singleton").getBeanDefinition();
+		beanFactory.registerBeanDefinition("beanDependBean2", beanDefinition);
+		beanFactory.registerBeanDefinition("autowiredAnnotationBeanPostProcessor",
+				new RootBeanDefinition(AutowiredAnnotationBeanPostProcessor.class));
+
+		beanFactory.addBeanPostProcessor(beanFactory.getBean(AutowiredAnnotationBeanPostProcessor.class));
+		BeanDependBean2 beanDependBean2 = beanFactory.getBean(BeanDependBean2.class);
+		System.out.println(beanDependBean2.bean2);
 	}
 
 	private static void test02Supplier() {
@@ -89,6 +107,25 @@ public class Demo01_BeanFactory {
 		Bean1 bean = beanFactory.getBean(Bean1.class);
 		System.out.println(bean.bean2);
 	}
+
+	static class BeanDependBean2 {
+
+		// @Autowired
+		private Bean2 bean2;
+
+		public BeanDependBean2(Bean2 bean2) {
+			this.bean2 = bean2;
+		}
+
+		public Bean2 getBean2() {
+			return bean2;
+		}
+
+		public void setBean2(Bean2 bean2) {
+			this.bean2 = bean2;
+		}
+	}
+
 
 
 	@Configuration
