@@ -591,6 +591,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// Allow post-processors to modify the merged bean definition.
+		// 主要收集实例的一些注解信息，然后合并到BeanDefinition中，供后面初始化的时候使用，如：
+		//    AutowiredAnnotationBeanPostProcessor：@Autowired @Value
+		//    CommonAnnotationBeanPostProcessor：@Resource @PostConstruct @PreDestroy
 		synchronized (mbd.postProcessingLock) {
 			if (!mbd.postProcessed) {
 				try {
