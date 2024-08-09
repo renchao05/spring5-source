@@ -642,7 +642,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		if (earlySingletonExposure) {
-			// 重新获取实际的Bean，因为如果aop后，与原始Bean就会不一样
+			// 获取提前暴露的Bean，如果没有出现循环依赖,这里返回的是null
+			// 如果出现循环依赖并且提前aop，earlySingletonReference与exposedObject就会不一样
 			Object earlySingletonReference = getSingleton(beanName, false);
 			if (earlySingletonReference != null) {
 				if (exposedObject == bean) {

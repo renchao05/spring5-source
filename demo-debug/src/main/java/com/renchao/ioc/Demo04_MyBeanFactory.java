@@ -30,11 +30,11 @@ public class Demo04_MyBeanFactory extends DefaultSingletonBeanRegistry {
 
 
 	public Object getBean(String name) {
-		Object singleton = getSingleton(name);
-		if (singleton != null) {
-			return singleton;
+		Object bean = getSingleton(name);
+		if (bean != null) {
+			return bean;
 		}
-		return doGetBean(name);
+		return getSingleton(name, () -> createBean(name));
 	}
 
 
@@ -42,27 +42,21 @@ public class Demo04_MyBeanFactory extends DefaultSingletonBeanRegistry {
 	 * Bean 简单的生命周期
 	 * 实例化 -> 属性注入 -> Bean创建完成
 	 */
-	public Object doGetBean(String name) {
+	public Object createBean(String name) {
 		Class<?> aClass = beanClassMap.get(name);
 		// 实例化
 		Object o = BeanUtils.instantiateClass(aClass);
-		// 标记当前Bean正在创建
-		beforeSingletonCreation(name);
-		// 放入早期bean
-		addSingletonFactory(name, () -> getEarlyBean(name, o));
+
+		// 放入原始bean到三级缓存
+		addSingletonFactory(name, () -> getEarlyBean(o));
 
 		// 属性注入
 		propertyInjection(o);
 
-		// Bean创建完成
-		afterSingletonCreation(name);
+		// 其他逻辑，如AOP
 
-		// TODO 其他事，如 AOP
-
-		// 放入单例池
-		addSingleton(name, o);
-
-		return o;
+		Object singleton = getSingleton(name, false);
+		return singleton != null ? singleton : o;
 	}
 
 	/**
@@ -87,8 +81,8 @@ public class Demo04_MyBeanFactory extends DefaultSingletonBeanRegistry {
 	/**
 	 * 获取早期 Bean
 	 */
-	public Object getEarlyBean(String name, Object o) {
-		// TODO 其他事，如 AOP
+	public Object getEarlyBean(Object o) {
+		// 其他逻辑，如 AOP
 		return o;
 	}
 
