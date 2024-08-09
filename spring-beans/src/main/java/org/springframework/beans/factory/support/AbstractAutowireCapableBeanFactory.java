@@ -616,6 +616,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				logger.trace("Eagerly caching bean '" + beanName +
 						"' to allow for resolving potential circular references");
 			}
+			// 放入三级缓存singletonFactories，解决循环依赖
+			// 目前的理解是，二级缓存存在的意义在于，因为从三级缓存获取的Bean还是早期的bean，没有完全初始化完成，先暂存在二级缓存
+			// 三级缓存之所以是个函数，是因为有些Bean如果需要aop，则会提前在该函数中进行aop(正常情况下是在初始化完成后进行aop)
+			// 如果没有AOP需求，二级缓存足以解决循环依赖问题，三级缓存主要是为了解决AOP(当然函数中还可以处理其他复杂逻辑)
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
 
@@ -638,6 +642,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		if (earlySingletonExposure) {
+			// 重新获取实际的Bean，因为如果aop后，与原始Bean就会不一样
 			Object earlySingletonReference = getSingleton(beanName, false);
 			if (earlySingletonReference != null) {
 				if (exposedObject == bean) {
@@ -1819,6 +1824,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					beanName, "Invocation of init method failed", ex);
 		}
 		if (mbd == null || !mbd.isSynthetic()) {
+			// 正常情况下(没有出现循环依赖)，aop会在这里进行【AbstractAutoProxyCreator】
 			wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
 		}
 
