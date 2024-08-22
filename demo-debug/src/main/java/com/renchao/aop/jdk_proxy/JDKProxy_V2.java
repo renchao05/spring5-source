@@ -39,4 +39,16 @@ public class JDKProxy_V2 {
 		void invoke();
 	}
 
+	static class TargetImpl implements JDKProxy_V1.Target {
+		@Override
+		public void foo() {
+			System.out.println("目标方法执行。。。");
+		}
+	}
+
+	interface Target {
+		void foo();
+	}
+
+
 }

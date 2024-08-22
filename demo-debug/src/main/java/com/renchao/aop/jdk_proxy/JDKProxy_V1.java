@@ -22,4 +22,15 @@ public class JDKProxy_V1 {
 		}
 	}
 
+	static class TargetImpl implements Target {
+		@Override
+		public void foo() {
+			System.out.println("目标方法执行。。。");
+		}
+	}
+
+	interface Target {
+		void foo();
+	}
+
 }

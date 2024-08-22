@@ -6,6 +6,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 /**
+ * 可以通过Alibaba的Arthas反编译查看代理对象源代码
+ *
  * @author ren_chao
  * @since 2024-08-22
  */
@@ -32,5 +34,18 @@ public class Demo {
 		// 程序别结束，然后利用Arthas反编译
 		System.in.read();
 	}
+
+
+	static class TargetImpl implements JDKProxy_V1.Target {
+		@Override
+		public void foo() {
+			System.out.println("目标方法执行。。。");
+		}
+	}
+
+	interface Target {
+		void foo();
+	}
+
 
 }
