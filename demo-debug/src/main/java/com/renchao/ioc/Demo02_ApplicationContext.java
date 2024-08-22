@@ -12,7 +12,8 @@ import java.util.Arrays;
 
 public class Demo02_ApplicationContext {
 	public static void main(String[] args) {
-		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("b01.xml");
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("b02.xml");
+		// ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("b01.xml");
 //		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
 
 		Arrays.stream(context.getBeanFactory().getBeanDefinitionNames()).forEach(System.out::println);
