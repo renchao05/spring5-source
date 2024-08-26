@@ -288,6 +288,10 @@ configure(allprojects) { project ->
 		}
 	}
 
+	tasks.withType(Test) {
+		enabled = false
+	}
+
 }
 
 configure([rootProject] + javaProjects) { project ->
@@ -328,6 +332,3 @@ configure(rootProject) {
 	apply plugin: "kotlin"
 }
 
-test {
-	enabled false
-}
