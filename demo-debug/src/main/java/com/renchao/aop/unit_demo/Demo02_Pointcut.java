@@ -9,7 +9,7 @@ import java.lang.annotation.*;
  * @author ren_chao
  * @since 2024-08-27
  */
-public class Demo_Pointcut {
+public class Demo02_Pointcut {
 	public static void main(String[] args) throws NoSuchMethodException {
 		// 方法匹配
 		AspectJExpressionPointcut pointcut01 = new AspectJExpressionPointcut();

@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
  * @author ren_chao
  * @since 2024-08-27
  */
-public class Demo_Pointcut_Custom {
+public class Demo03_Pointcut_Custom {
 	public static void main(String[] args) throws NoSuchMethodException {
 		// 自定义
 		StaticMethodMatcherPointcut pointcut = new StaticMethodMatcherPointcut() {
