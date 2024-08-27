@@ -9,7 +9,7 @@ import org.springframework.aop.support.DefaultPointcutAdvisor;
  * @author ren_chao
  * @since 2024-08-27
  */
-public class Demo02 {
+public class Demo01 {
 	public static void main(String[] args) {
 		// 目标对象
 		Target target = new Target();
