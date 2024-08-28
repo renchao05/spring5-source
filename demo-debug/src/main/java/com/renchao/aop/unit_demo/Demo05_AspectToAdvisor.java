@@ -1,10 +1,13 @@
 package com.renchao.aop.unit_demo;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.aspectj.*;
 import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.aop.framework.ReflectiveMethodInvocation;
+import org.springframework.aop.interceptor.ExposeInvocationInterceptor;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 
 import java.lang.reflect.Method;
@@ -17,12 +20,16 @@ import java.util.List;
  * @since 2024-08-28
  */
 public class Demo05_AspectToAdvisor {
-	public static void main(String[] args) throws NoSuchMethodException {
+	public static void main(String[] args) throws Throwable {
 		List<Advisor> advisors = getAdvisorList(new MyAspect());
 		System.out.println("============通知转换前==============");
 		advisors.forEach(System.out::println);
 
-		ProxyFactory factory = new ProxyFactory(new T1());
+		T1 t1 = new T1();
+		ProxyFactory factory = new ProxyFactory(t1);
+
+		// 把 MethodInvocation 放入当前线程
+		factory.addAdvice(ExposeInvocationInterceptor.INSTANCE);
 		factory.addAdvisors(advisors);
 
 		// 通知 统一转换为环绕通知 MethodInterceptor (如果本来就是环绕通知，则不需要转换)
@@ -30,6 +37,11 @@ public class Demo05_AspectToAdvisor {
 
 		System.out.println("============转换后的环绕通知==============");
 		list.forEach(System.out::println);
+
+		Class<? extends T1> cls = t1.getClass();
+		MethodInvocation invocation = new MyReflectiveMethodInvocation(null, t1, cls.getMethod("m1"), new Object[0], cls, list);
+		System.out.println("============执行调用链==============");
+		invocation.proceed();
 	}
 
 	/**
@@ -125,8 +137,18 @@ public class Demo05_AspectToAdvisor {
 
 	static class T1 {
 		public void m1() {
-			System.out.println("T1 m1 ......");
+			System.out.println("T1 目标方法 m1 。。。。。。。。。。");
 		}
 	}
+
+	/**
+	 * 构造函数和方法受保护，通过重写获得方法权限
+	 */
+	static class MyReflectiveMethodInvocation extends ReflectiveMethodInvocation {
+		public MyReflectiveMethodInvocation(Object proxy, Object target, Method method, Object[] arguments, Class<?> targetClass, List<Object> interceptorsAndDynamicMethodMatchers) {
+			super(proxy, target, method, arguments, targetClass, interceptorsAndDynamicMethodMatchers);
+		}
+	}
+
 
 }
