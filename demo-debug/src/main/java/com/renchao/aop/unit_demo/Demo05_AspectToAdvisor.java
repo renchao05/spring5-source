@@ -4,6 +4,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.aspectj.*;
+import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 
 import java.lang.reflect.Method;
@@ -16,10 +17,19 @@ import java.util.List;
  * @since 2024-08-28
  */
 public class Demo05_AspectToAdvisor {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws NoSuchMethodException {
 		List<Advisor> advisors = getAdvisorList(new MyAspect());
+		System.out.println("============通知转换前==============");
 		advisors.forEach(System.out::println);
 
+		ProxyFactory factory = new ProxyFactory(new T1());
+		factory.addAdvisors(advisors);
+
+		// 通知 统一转换为环绕通知 MethodInterceptor (如果本来就是环绕通知，则不需要转换)
+		List<Object> list = factory.getInterceptorsAndDynamicInterceptionAdvice(T1.class.getMethod("m1"), T1.class);
+
+		System.out.println("============转换后的环绕通知==============");
+		list.forEach(System.out::println);
 	}
 
 	/**
@@ -112,6 +122,11 @@ public class Demo05_AspectToAdvisor {
 			}
 		}
 	}
-	
+
+	static class T1 {
+		public void m1() {
+			System.out.println("T1 m1 ......");
+		}
+	}
 
 }
