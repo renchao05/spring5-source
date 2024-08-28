@@ -28,7 +28,7 @@ public class Demo04_Advisor {
 		context.refresh();
 
 		MyAnnotationAwareAspectJAutoProxyCreator creator = context.getBean(MyAnnotationAwareAspectJAutoProxyCreator.class);
-		// 找到与T1匹配的所有低价切面Advisor
+		// 找到与T1匹配的所有低级切面Advisor
 		List<Advisor> advisors = creator.findEligibleAdvisors(T1.class, "t1");
 		advisors.forEach(System.out::println);
 		System.out.println("=======================");
