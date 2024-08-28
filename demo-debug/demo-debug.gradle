@@ -2,6 +2,7 @@
 dependencies {
     api(project(":spring-core"))
     optional(project(":spring-aop"))
+    optional("org.aspectj:aspectjweaver")
     optional(project(":spring-beans"))
     optional(project(":spring-context"))
     testImplementation platform('org.junit:junit-bom:5.9.1')
