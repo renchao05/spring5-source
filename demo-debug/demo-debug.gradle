@@ -1,11 +1,8 @@
 
 dependencies {
-    api(project(":spring-core"))
-    optional(project(":spring-aop"))
+    api(project(":spring-webmvc"))
     optional("org.aspectj:aspectjweaver")
-    optional(project(":spring-beans"))
-    optional(project(":spring-context"))
-    testImplementation platform('org.junit:junit-bom:5.9.1')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    optional("org.apache.tomcat.embed:tomcat-embed-core")
+    optional(testFixtures(project(":spring-web")))
 }
 

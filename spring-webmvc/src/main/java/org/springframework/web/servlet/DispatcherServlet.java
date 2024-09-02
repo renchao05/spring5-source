@@ -1030,21 +1030,30 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	@SuppressWarnings("deprecation")
 	protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		// 在处理文件上传请求时，可能会对原始请求进行包装，因此需要一个变量来跟踪实际处理的请求。
 		HttpServletRequest processedRequest = request;
+		// 保存找到的处理器链（包括处理器和拦截器）
 		HandlerExecutionChain mappedHandler = null;
+		// 用于标识是否解析了文件上传请求
 		boolean multipartRequestParsed = false;
 
+		// 管理异步请求的处理
 		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
 
 		try {
+			// 存储处理请求后生成的模型和视图
 			ModelAndView mv = null;
+			// 存储在请求处理过程中捕获的异常
 			Exception dispatchException = null;
 
 			try {
+				// 检查请求是否为文件上传请求，如果是则将其解析为 MultipartHttpServletRequest
 				processedRequest = checkMultipart(request);
 				multipartRequestParsed = (processedRequest != request);
 
 				// Determine handler for the current request.
+				// 在多个HandlerMapping中根据request查找适合的处理器（HandlerExecutionChain，包含处理器和拦截器）
+				// 主要是RequestMappingHandlerMapping，里面包含了所有的@RequestMapping处理器
 				mappedHandler = getHandler(processedRequest);
 				if (mappedHandler == null) {
 					noHandlerFound(processedRequest, response);
@@ -1052,9 +1061,12 @@ public class DispatcherServlet extends FrameworkServlet {
 				}
 
 				// Determine handler adapter for the current request.
+				// 在多个HandlerAdapter中找到能够处理该Handler的适配器（HandlerAdapter）
+				// 这里使用适配器模式的原因是Handler可以引入其他框架的，以提高扩展性
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
 				// Process last-modified header, if supported by the handler.
+				// 处理 GET或HEAD 请求时，检查资源的 Last-Modified 时间。如果资源没有修改，则返回一个 304 Not Modified 响应，终止进一步处理
 				String method = request.getMethod();
 				boolean isGet = HttpMethod.GET.matches(method);
 				if (isGet || HttpMethod.HEAD.matches(method)) {
@@ -1064,18 +1076,23 @@ public class DispatcherServlet extends FrameworkServlet {
 					}
 				}
 
+				// 调用处理器链中所有拦截器的 preHandle 方法。如果返回 false，则终止处理并返回
 				if (!mappedHandler.applyPreHandle(processedRequest, response)) {
 					return;
 				}
 
 				// Actually invoke the handler.
+				// 调用HandlerAdapter执行实际的请求处理逻辑，生成一个 ModelAndView 对象。
 				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
 
+				// 如果异步处理已经开始，直接返回不再继续处理
 				if (asyncManager.isConcurrentHandlingStarted()) {
 					return;
 				}
 
+				// 如果没有设置视图名，应用默认视图名
 				applyDefaultViewName(processedRequest, mv);
+				// 调用处理器链中所有拦截器的 postHandle 方法
 				mappedHandler.applyPostHandle(processedRequest, response, mv);
 			}
 			catch (Exception ex) {
@@ -1086,6 +1103,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				// making them available for @ExceptionHandler methods and other scenarios.
 				dispatchException = new NestedServletException("Handler dispatch failed", err);
 			}
+			// 处理请求处理结果或异常，生成并返回响应
 			processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);
 		}
 		catch (Exception ex) {
@@ -1133,6 +1151,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		boolean errorView = false;
 
+		// 如果有异常发生，处理异常
 		if (exception != null) {
 			if (exception instanceof ModelAndViewDefiningException) {
 				logger.debug("ModelAndViewDefiningException encountered", exception);
@@ -1146,6 +1165,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		}
 
 		// Did the handler return a view to render?
+		// 如果返回结果有ModelAndView，则解析并渲染ModelAndView
 		if (mv != null && !mv.wasCleared()) {
 			render(mv, request, response);
 			if (errorView) {
@@ -1165,6 +1185,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		if (mappedHandler != null) {
 			// Exception (if any) is already handled..
+			// 调用处理器链中拦截器的 afterCompletion 方法
 			mappedHandler.triggerAfterCompletion(request, response, null);
 		}
 	}
