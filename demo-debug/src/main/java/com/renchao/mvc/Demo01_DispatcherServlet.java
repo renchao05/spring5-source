@@ -22,7 +22,7 @@ import java.nio.charset.StandardCharsets;
  * @author ren_chao
  * @since 2024-08-28
  */
-public class Demo01 {
+public class Demo01_DispatcherServlet {
 	public static void main(String[] args) throws Exception {
 		GenericWebApplicationContext context = new GenericWebApplicationContext();
 		context.registerBean(RequestMappingHandlerMapping.class);
@@ -37,6 +37,7 @@ public class Demo01 {
 		handlerMapping.getHandlerMethods().forEach((k, v) -> System.out.println(k + "=" + v));
 
 		DispatcherServlet servlet = new DispatcherServlet(context);
+		// 由 Tomcat 实例化
 		servlet.init(new MockServletConfig(new MockServletContext(""), "test"));
 
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/test2");

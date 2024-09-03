@@ -488,6 +488,8 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	@Override
 	protected void onRefresh(ApplicationContext context) {
+		// 初始化主要部分，始化DispatcherServlet用到的各个组件
+		// 会优先从容器中查找，如果找不到，使用 resources/org/springframework/web/servlet/DispatcherServlet.properties 文件中默认的
 		initStrategies(context);
 	}
 
@@ -496,14 +498,44 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * <p>May be overridden in subclasses in order to initialize further strategy objects.
 	 */
 	protected void initStrategies(ApplicationContext context) {
+		// 用于处理文件上传请求
 		initMultipartResolver(context);
+
+		// 用于解析用户的语言环境（Locale）
 		initLocaleResolver(context);
+
+		// 用于解析和确定应用程序的主题
 		initThemeResolver(context);
+
+		// 将请求URL映射到相应的处理器（Handler）。List，默认有：
+		// BeanNameUrlHandlerMapping: 将 URL 映射到以 bean 名称为 URL 的处理器。
+		// RequestMappingHandlerMapping: 最常用的 HandlerMapping，负责处理通过 @RequestMapping 注解定义的请求映射。
+		// RouterFunctionMapping: 处理函数式风格的路由定义（RouterFunctions）。允许以函数式编程的方式定义路由，而不是通过注解。
 		initHandlerMappings(context);
+
+		// Handler适配器，用于调用HandlerMapping返回的处理器方法。List，默认有：
+		// HttpRequestHandlerAdapter: 用于处理实现了 HttpRequestHandler 接口的处理器。
+		// SimpleControllerHandlerAdapter: 适配器用于处理实现了 Controller 接口的控制器。
+		// RequestMappingHandlerAdapter: 最常用的 HandlerAdapter，与 RequestMappingHandlerMapping 配合使用。
+		// HandlerFunctionAdapter: 适配器用于处理基于函数式风格的 HandlerFunction。与 RouterFunctionMapping 配合使用。
 		initHandlerAdapters(context);
+
+		// 处理处理器方法在执行过程中抛出的异常。它可以将异常转换为合适的响应（例如错误页面或JSON错误消息）。List，默认有：
+		// ExceptionHandlerExceptionResolver：支持使用@ExceptionHandler注解的全局异常处理。
+		// ResponseStatusExceptionResolver：处理带有@ResponseStatus注解的方法异常。
+		// DefaultHandlerExceptionResolver：处理标准的Spring异常。
 		initHandlerExceptionResolvers(context);
+
+		// 用于在没有显式指定视图名称时，根据请求推断出视图名称
 		initRequestToViewNameTranslator(context);
+
+		// 用于将视图名称解析为具体的视图对象，负责返回最终的视图。List，常用的：
+		// InternalResourceViewResolver：解析JSP视图（默认）
+		// ThymeleafViewResolver：解析Thymeleaf模板
+		// FreeMarkerViewResolver：解析FreeMarker模板
 		initViewResolvers(context);
+
+		// 用于在重定向请求之间传递临时数据
 		initFlashMapManager(context);
 	}
 
