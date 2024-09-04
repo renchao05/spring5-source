@@ -328,27 +328,33 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 * @return a proxy wrapping the bean, or the raw bean instance as-is
 	 */
 	protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) {
+		// 检查 targetSourcedBeans 集合中是否包含当前 bean 的名字，如果是，则不需要代理，直接返回。
 		if (StringUtils.hasLength(beanName) && this.targetSourcedBeans.contains(beanName)) {
 			return bean;
 		}
+		// 如果缓存中已经明确表明该 bean 不需要代理，直接返回
 		if (Boolean.FALSE.equals(this.advisedBeans.get(cacheKey))) {
 			return bean;
 		}
+		// 检查该类是否是 Spring AOP 基础设施的一部分，比如 Advisor、Advice、Pointcut 等，这些类不应该被代理。及其他应该跳过的逻辑
 		if (isInfrastructureClass(bean.getClass()) || shouldSkip(bean.getClass(), beanName)) {
 			this.advisedBeans.put(cacheKey, Boolean.FALSE);
 			return bean;
 		}
 
 		// Create proxy if we have advice.
+		// 获取与该 bean 匹配的通知（advisors），决定是否需要创建代理
 		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
 		if (specificInterceptors != DO_NOT_PROXY) {
 			this.advisedBeans.put(cacheKey, Boolean.TRUE);
+			// 创建代理对象，并将其放入缓存中
 			Object proxy = createProxy(
 					bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
 			this.proxyTypes.put(cacheKey, proxy.getClass());
 			return proxy;
 		}
 
+		// 如果不需要代理，标记为不需要代理，并返回原始 bean
 		this.advisedBeans.put(cacheKey, Boolean.FALSE);
 		return bean;
 	}
