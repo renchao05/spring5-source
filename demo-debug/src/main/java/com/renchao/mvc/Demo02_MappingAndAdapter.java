@@ -26,7 +26,7 @@ import java.util.Map;
  * @author ren_chao
  * @since 2024-08-28
  */
-public class Demo01_MappingAndAdapter {
+public class Demo02_MappingAndAdapter {
 	public static void main(String[] args) throws Exception {
 		GenericWebApplicationContext context = new GenericWebApplicationContext();
 		// 将URL映射到以bean名称为URL的处理器，如 /test01 -> MyController(/test01)

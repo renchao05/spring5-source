@@ -853,6 +853,9 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	protected ModelAndView invokeHandlerMethod(HttpServletRequest request,
 			HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
 
+		// 异步请求配置
+		// 当一个请求的处理方法返回一个可以异步执行的类型（如Callable、DeferredResult等）时，Spring会开启异步处理模式。
+		// 这种机制允许在后台线程处理任务，而不会占用Servlet容器的线程，从而提升系统的并发能力。
 		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
 		AsyncWebRequest asyncWebRequest = WebAsyncUtils.createAsyncWebRequest(request, response);
 		asyncWebRequest.setTimeout(this.asyncRequestTimeout);
@@ -863,15 +866,21 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		asyncManager.registerDeferredResultInterceptors(this.deferredResultInterceptors);
 
 		// Obtain wrapped response to enforce lifecycle rule from Servlet spec, section 2.3.3.4
+		// 获取原始的响应对象，确保正确的响应生命周期管理
 		response = asyncWebRequest.getNativeResponse(HttpServletResponse.class);
 
+		// WebRequest 的实现，封装了 HttpServletRequest 和 HttpServletResponse，用于提供对请求和响应的统一访问
 		ServletWebRequest webRequest = (asyncWebRequest instanceof ServletWebRequest ?
 				(ServletWebRequest) asyncWebRequest : new ServletWebRequest(request, response));
 
 		try {
+			// 创建 DataBinder 实例，用于将请求参数绑定到方法参数
 			WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod);
+			// ModelFactory管理模型的初始化和数据填充
 			ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory);
 
+			// 包装了实际的处理器方法，负责调用控制器方法
+			// 继承自InvocableHandlerMethod（解析请求参数），主要增加了处理返回值的功能
 			ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);
 			if (this.argumentResolvers != null) {
 				invocableMethod.setHandlerMethodArgumentResolvers(this.argumentResolvers);
@@ -880,13 +889,16 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 				invocableMethod.setHandlerMethodReturnValueHandlers(this.returnValueHandlers);
 			}
 			invocableMethod.setDataBinderFactory(binderFactory);
+			// 用于在需要时解析参数名称（例如默认请求属性名称）
 			invocableMethod.setParameterNameDiscoverer(this.parameterNameDiscoverer);
 
+			// 用于存储模型数据和视图信息
 			ModelAndViewContainer mavContainer = new ModelAndViewContainer();
 			mavContainer.addAllAttributes(RequestContextUtils.getInputFlashMap(request));
 			modelFactory.initModel(webRequest, mavContainer, invocableMethod);
 			mavContainer.setIgnoreDefaultModelOnRedirect(this.ignoreDefaultModelOnRedirect);
 
+			// 检查是否有异步任务的结果
 			if (asyncManager.hasConcurrentResult()) {
 				Object result = asyncManager.getConcurrentResult();
 				Object[] resultContext = asyncManager.getConcurrentResultContext();
@@ -900,14 +912,18 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 				invocableMethod = invocableMethod.wrapConcurrentResult(result);
 			}
 
+			// 调用控制器方法，并将结果处理为 ModelAndView
 			invocableMethod.invokeAndHandle(webRequest, mavContainer);
+			// 检查是否启动了并发处理
 			if (asyncManager.isConcurrentHandlingStarted()) {
 				return null;
 			}
 
+			// 根据 ModelAndViewContainer 创建并返回 ModelAndView，这将用于最终的视图渲染。
 			return getModelAndView(mavContainer, modelFactory, webRequest);
 		}
 		finally {
+			// 标记请求处理完成，进行清理工作，如移除线程本地变量。
 			webRequest.requestCompleted();
 		}
 	}
