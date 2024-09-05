@@ -567,17 +567,22 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	@Override
 	public void afterPropertiesSet() {
 		// Do this first, it may add ResponseBody advice beans
+		// 扫描带有 @ControllerAdvice 的类，将其中的增强处理器（如 ResponseBodyAdvice）添加到处理链中。
+		// ResponseBodyAdvice 会在返回 @ResponseBody 注解的方法时对响应体进行处理
 		initControllerAdviceCache();
 
 		if (this.argumentResolvers == null) {
+			// 初始化默认参数解析器
 			List<HandlerMethodArgumentResolver> resolvers = getDefaultArgumentResolvers();
 			this.argumentResolvers = new HandlerMethodArgumentResolverComposite().addResolvers(resolvers);
 		}
+		// 专门用于处理 @InitBinder 方法参数的解析器
 		if (this.initBinderArgumentResolvers == null) {
 			List<HandlerMethodArgumentResolver> resolvers = getDefaultInitBinderArgumentResolvers();
 			this.initBinderArgumentResolvers = new HandlerMethodArgumentResolverComposite().addResolvers(resolvers);
 		}
 		if (this.returnValueHandlers == null) {
+			// 初始化默认返回值解析器
 			List<HandlerMethodReturnValueHandler> handlers = getDefaultReturnValueHandlers();
 			this.returnValueHandlers = new HandlerMethodReturnValueHandlerComposite().addHandlers(handlers);
 		}
@@ -687,6 +692,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		resolvers.add(new ServletModelAttributeMethodProcessor(true));
 
 		return resolvers;
+		//
 	}
 
 	/**
