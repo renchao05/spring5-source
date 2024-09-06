@@ -288,10 +288,12 @@ public class ExceptionHandlerExceptionResolver extends AbstractHandlerMethodExce
 			if (beanType == null) {
 				throw new IllegalStateException("Unresolvable type for ControllerAdviceBean: " + adviceBean);
 			}
+			// 查找标注了 @ExceptionHandler 的方法，封装为异常方法解析器
 			ExceptionHandlerMethodResolver resolver = new ExceptionHandlerMethodResolver(beanType);
 			if (resolver.hasExceptionMappings()) {
 				this.exceptionHandlerAdviceCache.put(adviceBean, resolver);
 			}
+			// 判断有没有实现ResponseBodyAdvice，如果是则加入responseBodyAdvice
 			if (ResponseBodyAdvice.class.isAssignableFrom(beanType)) {
 				this.responseBodyAdvice.add(adviceBean);
 			}

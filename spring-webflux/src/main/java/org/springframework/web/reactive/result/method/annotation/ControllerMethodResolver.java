@@ -223,14 +223,17 @@ class ControllerMethodResolver {
 		for (ControllerAdviceBean bean : beans) {
 			Class<?> beanType = bean.getBeanType();
 			if (beanType != null) {
+				// 查找标注了@ModelAttribute，但是没有被标注@RequestMapping 的方法
 				Set<Method> attrMethods = MethodIntrospector.selectMethods(beanType, MODEL_ATTRIBUTE_METHODS);
 				if (!attrMethods.isEmpty()) {
 					this.modelAttributeAdviceCache.put(bean, attrMethods);
 				}
+				// 查找标注了 @InitBinder 的方法
 				Set<Method> binderMethods = MethodIntrospector.selectMethods(beanType, INIT_BINDER_METHODS);
 				if (!binderMethods.isEmpty()) {
 					this.initBinderAdviceCache.put(bean, binderMethods);
 				}
+				// 查找标注了 @ExceptionHandler 的方法，封装为异常方法解析器
 				ExceptionHandlerMethodResolver resolver = new ExceptionHandlerMethodResolver(beanType);
 				if (resolver.hasExceptionMappings()) {
 					this.exceptionHandlerAdviceCache.put(bean, resolver);
