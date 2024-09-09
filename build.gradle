@@ -292,6 +292,12 @@ configure(allprojects) { project ->
 		enabled = false
 	}
 
+	// 关闭编译警告。。 afterEvaluate可以延迟执行与任务相关的配置，确保它们在正确的阶段执行
+	afterEvaluate {
+		tasks.withType(JavaCompile) {
+			options.compilerArgs.add("-Xlint:none")
+		}
+	}
 }
 
 configure([rootProject] + javaProjects) { project ->
