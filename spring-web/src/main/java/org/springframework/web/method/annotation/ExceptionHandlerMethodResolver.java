@@ -73,8 +73,11 @@ public class ExceptionHandlerMethodResolver {
 	 * @param handlerType the type to introspect
 	 */
 	public ExceptionHandlerMethodResolver(Class<?> handlerType) {
+		// 找到所有标注了@ExceptionHandler注解的方法
 		for (Method method : MethodIntrospector.selectMethods(handlerType, EXCEPTION_HANDLER_METHODS)) {
+			// 查找该方法可以处理的异常。先从注解的value中找，再从方法的参数中找
 			for (Class<? extends Throwable> exceptionType : detectExceptionMappings(method)) {
+				// 加入到异常映射mappedMethods
 				addExceptionMapping(exceptionType, method);
 			}
 		}
@@ -88,8 +91,10 @@ public class ExceptionHandlerMethodResolver {
 	@SuppressWarnings("unchecked")
 	private List<Class<? extends Throwable>> detectExceptionMappings(Method method) {
 		List<Class<? extends Throwable>> result = new ArrayList<>();
+		// 从@ExceptionHandler的value中提取异常映射
 		detectAnnotationExceptionMappings(method, result);
 		if (result.isEmpty()) {
+			// 如果@ExceptionHandler的value中没有提取到，则从方法参数中查找
 			for (Class<?> paramType : method.getParameterTypes()) {
 				if (Throwable.class.isAssignableFrom(paramType)) {
 					result.add((Class<? extends Throwable>) paramType);
@@ -176,15 +181,18 @@ public class ExceptionHandlerMethodResolver {
 	 */
 	private Method getMappedMethod(Class<? extends Throwable> exceptionType) {
 		List<Class<? extends Throwable>> matches = new ArrayList<>();
+		// 找到所有匹配的异常
 		for (Class<? extends Throwable> mappedException : this.mappedMethods.keySet()) {
 			if (mappedException.isAssignableFrom(exceptionType)) {
 				matches.add(mappedException);
 			}
 		}
 		if (!matches.isEmpty()) {
+			// 如果找到多个匹配的，则根据异常类型的深度对异常进行排序，然后选择最匹配的一个
 			if (matches.size() > 1) {
 				matches.sort(new ExceptionDepthComparator(exceptionType));
 			}
+			// 根据异常类型从mappedMethods中获取对应的处理器方法
 			return this.mappedMethods.get(matches.get(0));
 		}
 		else {

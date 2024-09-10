@@ -1185,12 +1185,14 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		// 如果有异常发生，处理异常
 		if (exception != null) {
+			// 如果是模型和视图定义相关异常，则直接获取视图
 			if (exception instanceof ModelAndViewDefiningException) {
 				logger.debug("ModelAndViewDefiningException encountered", exception);
 				mv = ((ModelAndViewDefiningException) exception).getModelAndView();
 			}
 			else {
 				Object handler = (mappedHandler != null ? mappedHandler.getHandler() : null);
+				// 处理异常
 				mv = processHandlerException(request, response, handler, exception);
 				errorView = (mv != null);
 			}
